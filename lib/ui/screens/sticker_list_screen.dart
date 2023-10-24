@@ -1,28 +1,30 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:sun_stickers/ui/_ui.dart';
 
 import '../../data/_data.dart';
+import '../../states/_states.dart';
 import '../../ui_kit/_ui_kit.dart';
 
-class StickerList extends StatefulWidget {
-  const StickerList({super.key});
+class StickerListController extends GetxController {
+  final _state = Get.find<StickerState>();
+  List<StickerCategory> get categories => _state.categories();
+  List<Sticker> get stickers => _state.stickers();
+  List<Sticker> get stickersByCategory => _state.stickersByCategory();
 
-  @override
-  State<StatefulWidget> createState() => StickerListState();
+  void onCategoryTap(StickerCategory category) {
+    _state.onCategoryTap(category);
+  }
+
+  void toggleTheme() {
+    _state.toggleTheme();
+  }
 }
 
-class StickerListState extends State<StickerList> {
-  var categories = AppData.categories;
-
-  void onCategoryTap(int selectedIndex) {
-    //Меняем выбранную категорию
-    categories.asMap().forEach((index, category) {
-      category.isSelected = index == selectedIndex;
-    });
-    setState(() {});
-  }
+class StickerList extends GetView<StickerListController> {
+  const StickerList({super.key});
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -46,8 +48,8 @@ class StickerListState extends State<StickerList> {
                   "Available for you",
                   style: Theme.of(context).textTheme.displaySmall,
                 ),
-                _categories(),
-                StickerListView(stickers: AppData.stickers),
+                _categories(context),
+                Obx(() => StickerListView(stickers: controller.stickersByCategory)),
                 Padding(
                   padding: const EdgeInsets.only(top: 25, bottom: 5),
                   child: Row(
@@ -68,7 +70,7 @@ class StickerListState extends State<StickerList> {
                   ),
                 ),
                 StickerListView(
-                  stickers: AppData.stickers,
+                  stickers: controller.stickers,
                   isReversed: true,
                 ),
               ],
@@ -81,7 +83,7 @@ class StickerListState extends State<StickerList> {
     return AppBar(
       leading: IconButton(
         icon: const FaIcon(FontAwesomeIcons.dice),
-        onPressed: () {},
+        onPressed: controller.toggleTheme,
       ),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -122,18 +124,18 @@ class StickerListState extends State<StickerList> {
     );
   }
 
-  Widget _categories() {
+  Widget _categories(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: SizedBox(
         height: 40,
-        child: ListView.separated(
+        child: Obx(() => ListView.separated(
             scrollDirection: Axis.horizontal,
             itemBuilder: (_, index) {
-              final category = categories[index];
+              final category = controller.categories[index];
               return GestureDetector(
                 onTap: () {
-                  onCategoryTap(index);
+                  controller.onCategoryTap(category);
                 },
                 child: Container(
                   width: 100,
@@ -154,7 +156,7 @@ class StickerListState extends State<StickerList> {
             separatorBuilder: (_, __) => Container(
                   width: 15,
                 ),
-            itemCount: categories.length),
+            itemCount: controller.categories.length)),
       ),
     );
   }

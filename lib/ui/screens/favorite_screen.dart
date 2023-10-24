@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../data/_data.dart';
+import '../../states/_states.dart';
 import '../../ui_kit/_ui_kit.dart';
 import '../_ui.dart';
 
-class FavoriteScreen extends StatefulWidget {
+class FavoriteScreenController extends GetxController {
+  final _state = Get.find<StickerState>();
+  List<Sticker> get favoriteItems => _state.favorite();
+}
+
+class FavoriteScreen extends GetView<FavoriteScreenController> {
   const FavoriteScreen({super.key});
 
   @override
-  State<FavoriteScreen> createState() => FavoriteScreenState();
-}
-
-class FavoriteScreenState extends State<FavoriteScreen> {
-  var favoriteItems = AppData.favoriteItems;
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _appBar(context),
-      body: EmptyWrapper(
-        type: EmptyWrapperType.favorite,
-        title: "Empty favorite",
-        isEmpty: favoriteItems.isEmpty,
-        child: _favoriteListView(),
-      ),
-    );
+    return Obx(() => Scaffold(
+          appBar: _appBar(context),
+          body: EmptyWrapper(
+            type: EmptyWrapperType.favorite,
+            title: "Empty favorite",
+            isEmpty: controller.favoriteItems.isEmpty,
+            child: _favoriteListView(context),
+          ),
+        ));
   }
 
   PreferredSizeWidget _appBar(BuildContext context) {
@@ -36,12 +36,12 @@ class FavoriteScreenState extends State<FavoriteScreen> {
     );
   }
 
-  Widget _favoriteListView() {
+  Widget _favoriteListView(BuildContext context) {
     return ListView.separated(
       padding: const EdgeInsets.all(30),
-      itemCount: favoriteItems.length,
+      itemCount: controller.favoriteItems.length,
       itemBuilder: (_, index) {
-        Sticker sticker = favoriteItems[index];
+        Sticker sticker = controller.favoriteItems[index];
         return Card(
           color: Theme.of(context).brightness == Brightness.light ? Colors.white : AppColor.dark,
           shape: RoundedRectangleBorder(

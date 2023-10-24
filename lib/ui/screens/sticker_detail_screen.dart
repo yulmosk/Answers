@@ -1,29 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 
 import '../../data/_data.dart';
+import '../../states/_states.dart';
 import '../../ui_kit/_ui_kit.dart';
 import '../widgets/_widgets.dart';
 
-class StickerDetail extends StatefulWidget {
-  const StickerDetail({super.key});
+class StickerDetailController extends GetxController {
+  final _state = Get.find<StickerState>();
+  Sticker get sticker => _state.selectedSticker();
 
-  @override
-  State<StickerDetail> createState() => StickerDetailState();
+  void onIncreaseQuantityTap() {
+    _state.onIncreaseQuantityTap(sticker);
+  }
+
+  void onDecreaseQuantityTap() {
+    _state.onDecreaseQuantityTap(sticker);
+  }
+
+  void onAddToCartTap() {
+    _state.onAddToCartTap(sticker);
+  }
+
+  void onAddRemoveFavoriteTap() {
+    _state.onAddRemoveFavoriteTap(sticker);
+  }
 }
 
-class StickerDetailState extends State<StickerDetail> {
-  final sticker = AppData.stickers[0];
+class StickerDetail extends GetView<StickerDetailController> {
+  const StickerDetail({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar(context),
-      body: Center(child: Image.asset(sticker.image, scale: 2)),
+      body: Center(child: Image.asset(controller.sticker.image, scale: 2)),
       floatingActionButton: _floatingActionButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      bottomNavigationBar: _bottomAppBar(),
+      bottomNavigationBar: _bottomAppBar(context),
     );
   }
 
@@ -42,15 +58,15 @@ class StickerDetailState extends State<StickerDetail> {
   }
 
   Widget _floatingActionButton() {
-    return FloatingActionButton(
-      elevation: 0.0,
-      backgroundColor: AppColor.accent,
-      onPressed: () {},
-      child: sticker.isFavorite ? const Icon(AppIcon.heart) : const Icon(AppIcon.outlinedHeart),
-    );
+    return Obx(() => FloatingActionButton(
+          elevation: 0.0,
+          backgroundColor: AppColor.accent,
+          onPressed: controller.onAddRemoveFavoriteTap,
+          child: controller.sticker.isFavorite ? const Icon(AppIcon.heart) : const Icon(AppIcon.outlinedHeart),
+        ));
   }
 
-  Widget _bottomAppBar() {
+  Widget _bottomAppBar(BuildContext context) {
     return ClipRRect(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(30),
@@ -71,7 +87,7 @@ class StickerDetailState extends State<StickerDetail> {
                               RatingBar.builder(
                                 itemPadding: EdgeInsets.zero,
                                 itemSize: 20,
-                                initialRating: sticker.score,
+                                initialRating: controller.sticker.score,
                                 minRating: 1,
                                 direction: Axis.horizontal,
                                 allowHalfRating: true,
@@ -88,12 +104,12 @@ class StickerDetailState extends State<StickerDetail> {
                               ),
                               const SizedBox(width: 15),
                               Text(
-                                sticker.score.toString(),
+                                controller.sticker.score.toString(),
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               const SizedBox(width: 5),
                               Text(
-                                "(${sticker.voter})",
+                                "(${controller.sticker.voter})",
                                 style: Theme.of(context).textTheme.titleMedium,
                               )
                             ],
@@ -103,16 +119,16 @@ class StickerDetailState extends State<StickerDetail> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "\$${sticker.price}",
+                                "\$${controller.sticker.price}",
                                 style: Theme.of(context).textTheme.displayLarge?.copyWith(color: AppColor.accent),
                               ),
                               CounterButton(
-                                onIncrementTap: () {},
-                                onDecrementTap: () {},
-                                label: Text(
-                                  sticker.quantity.toString(),
-                                  style: Theme.of(context).textTheme.displayLarge,
-                                ),
+                                onIncrementTap: controller.onIncreaseQuantityTap,
+                                onDecrementTap: controller.onDecreaseQuantityTap,
+                                label: Obx(() => Text(
+                                      controller.sticker.quantity.toString(),
+                                      style: Theme.of(context).textTheme.displayLarge,
+                                    )),
                               )
                             ],
                           ),
@@ -123,7 +139,7 @@ class StickerDetailState extends State<StickerDetail> {
                           ),
                           const SizedBox(height: 15),
                           Text(
-                            sticker.description,
+                            controller.sticker.description,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 30),
@@ -133,7 +149,7 @@ class StickerDetailState extends State<StickerDetail> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 30),
                               child: ElevatedButton(
-                                onPressed: () {},
+                                onPressed: controller.onAddToCartTap,
                                 child: const Text("Add to cart"),
                               ),
                             ),

@@ -1,31 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 
 import '../../data/_data.dart';
+import '../../states/_states.dart';
 import '../../ui_kit/_ui_kit.dart';
 import '../_ui.dart';
 
-class CartScreen extends StatefulWidget {
+class CartScreenController extends GetxController {
+  final _state = Get.find<StickerState>();
+  List<Sticker> get cartItems => _state.cart();
+  double get subtotal => _state.subtotal;
+  final taxes = 5.0;
+
+  String stickerPrice(Sticker sticker) {
+    return _state.stickerPrice(sticker);
+  }
+
+  void onIncreaseQuantityTap(Sticker sticker) {
+    _state.onIncreaseQuantityTap(sticker);
+  }
+
+  void onDecreaseQuantityTap(Sticker sticker) {
+    _state.onDecreaseQuantityTap(sticker);
+  }
+
+  void onRemoveFromCartTap(Sticker sticker) {
+    _state.onRemoveFromCartTap(sticker);
+  }
+
+  void onCheckOutTap() {
+    _state.onCheckOutTap();
+  }
+}
+
+class CartScreen extends GetView<CartScreenController> {
   const CartScreen({super.key});
 
   @override
-  State<CartScreen> createState() => CartScreenState();
-}
-
-class CartScreenState extends State<CartScreen> {
-  var cartItems = AppData.cartItems;
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _appBar(context),
-      body: EmptyWrapper(
-        title: "Empty cart",
-        isEmpty: cartItems.isEmpty,
-        child: _cartListView(),
-      ),
-      bottomNavigationBar: _bottomAppBar(),
-    );
+    return Obx(() => Scaffold(
+          appBar: _appBar(context),
+          body: EmptyWrapper(
+            title: "Empty cart",
+            isEmpty: controller.cartItems.isEmpty,
+            child: _cartListView(context),
+          ),
+          bottomNavigationBar: controller.cartItems.isEmpty ? const SizedBox.shrink() : _bottomAppBar(context),
+        ));
   }
 
   PreferredSizeWidget _appBar(BuildContext context) {
@@ -37,17 +59,18 @@ class CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _cartListView() {
+  Widget _cartListView(BuildContext context) {
     return ListView.separated(
       padding: const EdgeInsets.all(30),
-      itemCount: cartItems.length,
+      itemCount: controller.cartItems.length,
       itemBuilder: (_, index) {
-        final sticker = cartItems[index];
+        final sticker = controller.cartItems[index];
         return Dismissible(
           direction: DismissDirection.endToStart,
           onDismissed: (direction) {
             if (direction == DismissDirection.endToStart) {
               print('Удаляем');
+              controller.onRemoveFromCartTap(sticker);
             }
           },
           key: UniqueKey(),
@@ -97,12 +120,8 @@ class CartScreenState extends State<CartScreen> {
                 Column(
                   children: [
                     CounterButton(
-                      onIncrementTap: () {
-                        print('Увеличить количество');
-                      },
-                      onDecrementTap: () {
-                        print('Уменьшить количество');
-                      },
+                      onIncrementTap: () => controller.onIncreaseQuantityTap(sticker),
+                      onDecrementTap: () => controller.onDecreaseQuantityTap(sticker),
                       size: const Size(24, 24),
                       padding: 0,
                       label: Text(
@@ -111,7 +130,7 @@ class CartScreenState extends State<CartScreen> {
                       ),
                     ),
                     Text(
-                      "\$10",
+                      "\$${controller.stickerPrice(sticker)}",
                       style: AppTextStyle.h2Style.copyWith(color: AppColor.accent),
                     )
                   ],
@@ -127,7 +146,7 @@ class CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _bottomAppBar() {
+  Widget _bottomAppBar(BuildContext context) {
     return ClipRRect(
       borderRadius: const BorderRadius.only(
         topLeft: Radius.circular(30),
@@ -153,7 +172,7 @@ class CartScreenState extends State<CartScreen> {
                                 style: Theme.of(context).textTheme.headlineSmall,
                               ),
                               Text(
-                                "\$111",
+                                "\$${controller.subtotal}",
                                 style: Theme.of(context).textTheme.displayMedium,
                               ),
                             ],
@@ -170,7 +189,7 @@ class CartScreenState extends State<CartScreen> {
                                 style: Theme.of(context).textTheme.headlineSmall,
                               ),
                               Text(
-                                "\$${5.00}",
+                                "\$${controller.taxes}",
                                 style: Theme.of(context).textTheme.displayMedium,
                               ),
                             ],
@@ -190,7 +209,7 @@ class CartScreenState extends State<CartScreen> {
                                 style: Theme.of(context).textTheme.displayMedium,
                               ),
                               Text(
-                                "\$120.0",
+                                "\$${controller.subtotal + controller.taxes}",
                                 style: AppTextStyle.h2Style.copyWith(
                                   color: AppColor.accent,
                                 ),
@@ -205,7 +224,7 @@ class CartScreenState extends State<CartScreen> {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 30),
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: controller.onCheckOutTap,
                               child: const Text("Checkout"),
                             ),
                           ),
