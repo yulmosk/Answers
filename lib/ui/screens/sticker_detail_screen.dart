@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../data/_data.dart';
+import '../../states/_states.dart';
 import '../../ui_kit/_ui_kit.dart';
 import '../widgets/_widgets.dart';
 
-class StickerDetail extends StatefulWidget {
-  const StickerDetail({super.key});
-
-  @override
-  State<StickerDetail> createState() => StickerDetailState();
-}
-
-class StickerDetailState extends State<StickerDetail> {
-  final sticker = AppData.stickers[0];
+class StickerDetail extends StatelessWidget {
+ StickerDetail({super.key});
+ SharedData get _state => StickerState().state;
+ Sticker get sticker => _state.selectedSticker;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +20,7 @@ class StickerDetailState extends State<StickerDetail> {
       body: Center(child: Image.asset(sticker.image, scale: 2)),
       floatingActionButton: _floatingActionButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      bottomNavigationBar: _bottomAppBar(),
+      bottomNavigationBar: _bottomAppBar(context),
     );
   }
 
@@ -42,15 +39,15 @@ class StickerDetailState extends State<StickerDetail> {
   }
 
   Widget _floatingActionButton() {
-    return FloatingActionButton(
+    return Observer(builder: (_) => FloatingActionButton(
       elevation: 0.0,
       backgroundColor: AppColor.accent,
-      onPressed: () {},
+      onPressed: () => _state.onAddRemoveFavoriteTap(sticker),
       child: sticker.isFavorite ? const Icon(AppIcon.heart) : const Icon(AppIcon.outlinedHeart),
-    );
+    ));
   }
 
-  Widget _bottomAppBar() {
+  Widget _bottomAppBar(BuildContext context) {
     return ClipRRect(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(30),
@@ -107,12 +104,12 @@ class StickerDetailState extends State<StickerDetail> {
                                 style: Theme.of(context).textTheme.displayLarge?.copyWith(color: AppColor.accent),
                               ),
                               CounterButton(
-                                onIncrementTap: () {},
-                                onDecrementTap: () {},
-                                label: Text(
+                                onIncrementTap: () => _state.onIncreaseQuantityTap(sticker),
+                                onDecrementTap: () => _state.onDecreaseQuantityTap(sticker),
+                                label: Observer(builder: (_) => Text(
                                   sticker.quantity.toString(),
                                   style: Theme.of(context).textTheme.displayLarge,
-                                ),
+                                ),),
                               )
                             ],
                           ),
@@ -133,7 +130,7 @@ class StickerDetailState extends State<StickerDetail> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 30),
                               child: ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () => _state.onAddToCartTap(sticker),
                                 child: const Text("Add to cart"),
                               ),
                             ),

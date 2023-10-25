@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 import '../../data/_data.dart';
+import '../../states/_states.dart';
 import '../../ui_kit/_ui_kit.dart';
 import '../_ui.dart';
 
 class StickerListView extends StatelessWidget {
-  const StickerListView({super.key, required this.stickers, this.isReversed = false});
+  StickerListView({super.key, required this.stickers, this.isReversed = false});
 
   final List<Sticker> stickers;
   final bool isReversed;
+  SharedData get _state => StickerState().state;
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +27,10 @@ class StickerListView extends StatelessWidget {
           itemBuilder: (_, index) {
             Sticker sticker = isReversed ? stickers.reversed.toList()[index] : stickers[index];
             return GestureDetector(
-              onTap: () {
+              onTap: () async {
                 print('Клик на карточку');
-                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const StickerDetail()));
+                await _state.setSelectedSticker(sticker);
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => StickerDetail()));
               },
               child: Container(
                 width: 160,
