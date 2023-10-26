@@ -1,6 +1,8 @@
+import 'package:equatable/equatable.dart';
+
 enum StickerType { all, toy, fauna, plant, berry, fruit, other }
 
-class Sticker {
+class Sticker extends Equatable {
   int id;
   String image;
   String name;
@@ -26,4 +28,37 @@ class Sticker {
     required this.voter,
     required this.cart,
   });
+
+  @override
+  List<Object?> get props => [id, image, name, price, quantity, favorite, description, score, type, voter, cart];
+  @override
+  int get hashCode => id.hashCode^image.hashCode^name.hashCode^price.hashCode^quantity.hashCode^favorite.hashCode^description.hashCode^score.hashCode^type.hashCode^voter.hashCode^cart.hashCode;
+
+  Sticker copyWith({
+    int? id,
+    String? image,
+    String? name,
+    double? price,
+    int? quantity,
+    bool? favorite,
+    String? description,
+    double? score,
+    StickerType? type,
+    int? voter,
+    bool? cart,
+  }) {
+    return Sticker(
+      id: id ?? this.id,
+      image: image ?? this.image,
+      name: name ?? this.name,
+      price: price ?? this.price,
+      quantity: quantity ?? this.quantity,
+      favorite: favorite ?? this.favorite,
+      description: description ?? this.description,
+      score: score ?? this.score,
+      type: type ?? this.type,
+      voter: voter ?? this.voter,
+      cart: cart ?? this.cart,
+    );
+  }
 }
