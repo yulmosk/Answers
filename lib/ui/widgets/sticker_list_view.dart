@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/_data.dart';
+import '../../states/_states.dart';
 import '../../ui_kit/_ui_kit.dart';
 import '../_ui.dart';
 
@@ -12,10 +14,6 @@ class StickerListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('Проверяем количество стикеров которые пришли в компонент ${stickers}');
-    for (var i = 0; i < stickers.length; i++) {
-      debugPrint('Имя стикера ${stickers[i].name}');
-    }
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return SizedBox(
       height: 200,
@@ -27,7 +25,7 @@ class StickerListView extends StatelessWidget {
             return GestureDetector(
               onTap: () {
                 print('Клик на карточку');
-                Navigator.of(context).push(MaterialPageRoute(builder: (_) => StickerDetail()));
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => StickerDetail(sticker: sticker)));
               },
               child: Container(
                 width: 160,

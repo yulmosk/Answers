@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:sun_stickers/states/_states.dart';
 
 import '../../data/_data.dart';
 import '../../ui_kit/_ui_kit.dart';
 import '../widgets/_widgets.dart';
 
 class StickerDetail extends StatelessWidget {
-  StickerDetail({super.key});
-  final sticker = AppData.stickers[0];
+  StickerDetail({super.key, required this.sticker});
+  final Sticker sticker;
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('StickerDetail >> Перерисовка экрана деталей');
     return Scaffold(
       appBar: _appBar(context),
       body: Center(child: Image.asset(sticker.image, scale: 2)),
-      floatingActionButton: _floatingActionButton(),
+      floatingActionButton: _floatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar: _bottomAppBar(context),
     );
@@ -35,7 +38,8 @@ class StickerDetail extends StatelessWidget {
     );
   }
 
-  Widget _floatingActionButton() {
+  Widget _floatingActionButton(BuildContext context) {
+    debugPrint('StickerDetail >> Перерисовка экрана деталей');
     return FloatingActionButton(
       elevation: 0.0,
       backgroundColor: AppColor.accent,
@@ -45,6 +49,7 @@ class StickerDetail extends StatelessWidget {
   }
 
   Widget _bottomAppBar(BuildContext context) {
+    debugPrint('StickerDetail >> Перерисовка экрана деталей: _bottomAppBar');
     return ClipRRect(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(30),
@@ -101,11 +106,19 @@ class StickerDetail extends StatelessWidget {
                                 style: Theme.of(context).textTheme.displayLarge?.copyWith(color: AppColor.accent),
                               ),
                               CounterButton(
-                                onIncrementTap: () {},
-                                onDecrementTap: () {},
-                                label: Text(
-                                  sticker.quantity.toString(),
-                                  style: Theme.of(context).textTheme.displayLarge,
+                                onIncrementTap: () => context.read<SharedBloc>().add(IncreaseQuantityTapEvent(sticker.id)),
+                                onDecrementTap: () => context.read<SharedBloc>().add(DecreaseQuantityTapEvent(sticker.id)),
+                                label: Builder(
+                                  builder: (context) {
+                                    //final bloc = context.watch<SharedBloc>();
+                                    //final quantity = context.watch<SharedBloc>().getStickerById(sticker.id).quantity;
+                                    final quantity = context.select((SharedBloc b) => b.getStickerById(sticker.id).quantity);
+                                    debugPrint('StickerDetail >> Управление количеством');
+                                    return Text(
+                                      quantity.toString(),
+                                      style: Theme.of(context).textTheme.displayLarge,
+                                    );
+                                  }
                                 ),
                               )
                             ],
@@ -127,7 +140,7 @@ class StickerDetail extends StatelessWidget {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 30),
                               child: ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () => context.read<SharedBloc>().add(AddToCartTapEvent(sticker.id)),
                                 child: const Text("Add to cart"),
                               ),
                             ),

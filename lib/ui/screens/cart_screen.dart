@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../data/_data.dart';
+import '../../states/_states.dart';
 import '../../ui_kit/_ui_kit.dart';
 import '../_ui.dart';
 
 class CartScreen extends StatelessWidget {
   CartScreen({super.key});
-  var cartItems = AppData.cartItems;
+  //var cartItems = AppData.cartItems;
   double taxes = 5.0;
 
   @override
   Widget build(BuildContext context) {
+    final bloc = context.watch<SharedBloc>();
+    final cartItems = bloc.cart;
+    debugPrint('CartScreen >> Перерисовка корзины');
     return Scaffold(
       appBar: _appBar(context),
       body: EmptyWrapper(
         title: "Empty cart",
         isEmpty: cartItems.isEmpty,
-        child: _cartListView(context),
+        child: _cartListView(context, cartItems),
       ),
       bottomNavigationBar: cartItems.isEmpty? const SizedBox.shrink() : _bottomAppBar(context),
     );
@@ -32,7 +37,7 @@ class CartScreen extends StatelessWidget {
     );
   }
 
-  Widget _cartListView(BuildContext context) {
+  Widget _cartListView(BuildContext context, List<Sticker> cartItems) {
     return ListView.separated(
       padding: const EdgeInsets.all(30),
       itemCount: cartItems.length,
@@ -43,6 +48,7 @@ class CartScreen extends StatelessWidget {
           onDismissed: (direction) {
             if (direction == DismissDirection.endToStart) {
               print('Удаляем');
+              context.read<SharedBloc>().add(RemoveFromCartTapEvent(sticker.id));
             }
           },
           key: UniqueKey(),
