@@ -14,7 +14,7 @@ class StickerDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('StickerDetail >> Перерисовка экрана деталей');
+    debugPrint('StickerDetail >> Перерисовка экрана деталей целиком');
     return Scaffold(
       appBar: _appBar(context),
       body: Center(child: Image.asset(sticker.image, scale: 2)),
@@ -39,17 +39,22 @@ class StickerDetail extends StatelessWidget {
   }
 
   Widget _floatingActionButton(BuildContext context) {
-    debugPrint('StickerDetail >> Перерисовка экрана деталей');
-    return FloatingActionButton(
-      elevation: 0.0,
-      backgroundColor: AppColor.accent,
-      onPressed: () {},
-      child: sticker.favorite ? const Icon(AppIcon.heart) : const Icon(AppIcon.outlinedHeart),
+    //debugPrint('StickerDetail >> Перерисовка экрана деталей');
+    return Builder(
+      builder: (context) {
+        final favorite = context.watch<SharedBloc>().getStickerById(sticker.id).favorite;
+        return FloatingActionButton(
+          elevation: 0.0,
+          backgroundColor: AppColor.accent,
+          onPressed: () => context.read<SharedBloc>().add(AddRemoveFavoriteTapEvent(sticker.id)),
+          child: favorite ? const Icon(AppIcon.heart) : const Icon(AppIcon.outlinedHeart),
+        );
+      }
     );
   }
 
   Widget _bottomAppBar(BuildContext context) {
-    debugPrint('StickerDetail >> Перерисовка экрана деталей: _bottomAppBar');
+    //debugPrint('StickerDetail >> Перерисовка экрана деталей: _bottomAppBar');
     return ClipRRect(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(30),

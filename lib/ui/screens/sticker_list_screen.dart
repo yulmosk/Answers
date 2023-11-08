@@ -14,76 +14,81 @@ class StickerList extends StatelessWidget {
 
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: _appBar(context),
-        body: Padding(
-          padding: const EdgeInsets.all(20),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Morning, Sunny",
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                Text(
-                  "What sticker do you want\nto buy today",
-                  style: Theme.of(context).textTheme.displayLarge,
-                ),
-                _searchBar(),
-                Text(
-                  "Available for you",
-                  style: Theme.of(context).textTheme.displaySmall,
-                ),
-                _categories(context),
-                Builder(
+  Widget build(BuildContext context) {
+    debugPrint('StickerList >> Перерисовка всего экрана');
+    return Scaffold(
+      appBar: _appBar(context),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Morning, Sunny",
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              Text(
+                "What sticker do you want\nto buy today",
+                style: Theme.of(context).textTheme.displayLarge,
+              ),
+              _searchBar(),
+              Text(
+                "Available for you",
+                style: Theme.of(context).textTheme.displaySmall,
+              ),
+              _categories(context),
+              Builder(
                   builder: (context) {
                     debugPrint('StickerList >> Фильтрация категорий');
-                    final stickersByCategory = context.watch<SharedBloc>().state.stickersByCategory;
-                    //final stickersByCategory = context.select((SharedBloc b) => b.state.stickersByCategory);
+                    //final stickersByCategory = context.watch<SharedBloc>().state.stickersByCategory;
+                    final stickersByCategory = context.select((SharedBloc b) => b.state.stickersByCategory);
                     return StickerListView(stickers: stickersByCategory);
                   }
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 25, bottom: 5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Best stickers of the week",
-                        style: Theme.of(context).textTheme.displaySmall,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 25, bottom: 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Best stickers of the week",
+                      style: Theme.of(context).textTheme.displaySmall,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 20),
+                      child: Text(
+                        "See all",
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: AppColor.accent),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 20),
-                        child: Text(
-                          "See all",
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: AppColor.accent),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                Builder(
+              ),
+              Builder(
                   builder: (context) {
                     debugPrint('StickerList >> Лучшие предложения недели');
-                    final stickers = context.watch<SharedBloc>().state.stickers;
+                    context.select((SharedBloc b) => b.state.stickers.length);
+                    final stickers = context.read<SharedBloc>().state.stickers;
+                    //final stickers = context.watch<SharedBloc>().state.stickers;
                     return StickerListView(
                       stickers: stickers,
                       isReversed: true,
                     );
                   }
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
+  }
 
   PreferredSizeWidget _appBar(BuildContext context) {
     return AppBar(
       leading: IconButton(
         icon: const FaIcon(FontAwesomeIcons.dice),
-        onPressed: () {},
+        onPressed: () => context.read<SharedBloc>().add(ToggleThemeTabEvent()),
       ),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -132,36 +137,45 @@ class StickerList extends StatelessWidget {
         child: Builder(
           builder: (context) {
             //final categories = context.watch<SharedBloc>().state.categories;
-            debugPrint('StickerList >> Подсветка выбранной категории');
-            final categories = context.select((SharedBloc b) => b.state.categories);
+            final categoiesLength = context.select((SharedBloc b) => b.state.categories.length);
+            debugPrint('StickerList >> Изменение длины списка категории');
+            //final categories = context.select((SharedBloc b) => b.state.categories);
             return ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (_, index) {
-                  final category = categories[index];
-                  return GestureDetector(
-                    onTap: (){
-                      context.read<SharedBloc>().add(CategoryTapEvent(category));
-                    },
-                    child: Container(
-                      width: 100,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: category.isSelected ? AppColor.accent : Colors.transparent,
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(15),
+
+                  return Builder(
+                    builder: (context) {
+                      final isSelected = context.select((SharedBloc b) => b.state.categories[index].isSelected);
+                      final category = context.read<SharedBloc>().state.categories[index];
+                      debugPrint('StickerList >> Перерисовка категории ${category.type}');
+                      return GestureDetector(
+                        onTap: (){
+                          context.read<SharedBloc>().add(CategoryTapEvent(category));
+                        },
+                        child: Container(
+                          width: 100,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            //color: category.isSelected ? AppColor.accent : Colors.transparent,
+                            color: isSelected ? AppColor.accent : Colors.transparent,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(15),
+                            ),
+                          ),
+                          child: Text(
+                            category.type.name.firstCapital,
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        category.type.name.firstCapital,
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                    ),
+                      );
+                    }
                   );
                 },
                 separatorBuilder: (_, __) => Container(
                       width: 15,
                     ),
-                itemCount: categories.length);
+                itemCount: categoiesLength);
           }
         ),
       ),
