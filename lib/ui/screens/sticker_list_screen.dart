@@ -42,7 +42,7 @@ class StickerList extends StatelessWidget {
                   builder: (context) {
                     debugPrint('StickerList >> Фильтрация категорий');
                     //final stickersByCategory = context.watch<SharedBloc>().state.stickersByCategory;
-                    final stickersByCategory = context.select((SharedBloc b) => b.state.stickersByCategory);
+                    final stickersByCategory = context.select((SharedCubit b) => b.state.stickersByCategory);
                     return StickerListView(stickers: stickersByCategory);
                   }
               ),
@@ -68,8 +68,8 @@ class StickerList extends StatelessWidget {
               Builder(
                   builder: (context) {
                     debugPrint('StickerList >> Лучшие предложения недели');
-                    context.select((SharedBloc b) => b.state.stickers.length);
-                    final stickers = context.read<SharedBloc>().state.stickers;
+                    context.select((SharedCubit b) => b.state.stickers.length);
+                    final stickers = context.read<SharedCubit>().state.stickers;
                     //final stickers = context.watch<SharedBloc>().state.stickers;
                     return StickerListView(
                       stickers: stickers,
@@ -88,7 +88,7 @@ class StickerList extends StatelessWidget {
     return AppBar(
       leading: IconButton(
         icon: const FaIcon(FontAwesomeIcons.dice),
-        onPressed: () => context.read<SharedBloc>().add(ToggleThemeTabEvent()),
+        onPressed: context.read<SharedCubit>().onToggleThemeTab,
       ),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -137,7 +137,7 @@ class StickerList extends StatelessWidget {
         child: Builder(
           builder: (context) {
             //final categories = context.watch<SharedBloc>().state.categories;
-            final categoiesLength = context.select((SharedBloc b) => b.state.categories.length);
+            final categoiesLength = context.select((SharedCubit b) => b.state.categories.length);
             debugPrint('StickerList >> Изменение длины списка категории');
             //final categories = context.select((SharedBloc b) => b.state.categories);
             return ListView.separated(
@@ -146,12 +146,12 @@ class StickerList extends StatelessWidget {
 
                   return Builder(
                     builder: (context) {
-                      final isSelected = context.select((SharedBloc b) => b.state.categories[index].isSelected);
-                      final category = context.read<SharedBloc>().state.categories[index];
+                      final isSelected = context.select((SharedCubit b) => b.state.categories[index].isSelected);
+                      final category = context.read<SharedCubit>().state.categories[index];
                       debugPrint('StickerList >> Перерисовка категории ${category.type}');
                       return GestureDetector(
                         onTap: (){
-                          context.read<SharedBloc>().add(CategoryTapEvent(category));
+                          context.read<SharedCubit>().onCategoryTap(category);
                         },
                         child: Container(
                           width: 100,

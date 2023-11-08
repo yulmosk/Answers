@@ -16,11 +16,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<SharedBloc>(
-      create: (context) => SharedBloc(),
+    return BlocProvider<SharedCubit>(
+      create: (context) => SharedCubit(),
       child: Builder(
         builder: (context) {
-          final isLight = context.select((SharedBloc b) => b.state.isLight);
+          final isLight = context.select((SharedCubit b) => b.state.isLight);
           return MaterialApp(
             title: 'Sunny Stickers',
             theme: isLight ? AppTheme.lightTheme: AppTheme.darkTheme,

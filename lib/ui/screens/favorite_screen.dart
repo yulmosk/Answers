@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../data/_data.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../states/shared_bloc/shared_bloc.dart';
+import '../../states/_states.dart';
 import '../../ui_kit/_ui_kit.dart';
 import '../_ui.dart';
 
@@ -12,8 +12,8 @@ class FavoriteScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.select((SharedBloc b) => b.favorite.length);
-    final favoriteItems = context.read<SharedBloc>().favorite;
+    context.select((SharedCubit b) => b.favorite.length);
+    final favoriteItems = context.read<SharedCubit>().favorite;
     debugPrint('FavoriteScreen >> Перерисовка любимых');
     return Scaffold(
       appBar: _appBar(context),
@@ -36,8 +36,8 @@ class FavoriteScreen extends StatelessWidget {
   }
 
   Widget _favoriteListView(BuildContext context) {
-    context.select((SharedBloc b) => b.favorite.length);
-    final favoriteItems = context.read<SharedBloc>().favorite;
+    context.select((SharedCubit b) => b.favorite.length);
+    final favoriteItems = context.read<SharedCubit>().favorite;
     return ListView.separated(
       padding: const EdgeInsets.all(30),
       itemCount: favoriteItems.length,
