@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import '../data/_data.dart';
 import '../ui/_ui.dart';
 
-class StickerState {
-  StickerState._();
-  static final _instance = StickerState._();
-  factory StickerState() => _instance;
+class StickerState with ChangeNotifier {
+  // StickerState._();
+  // static final _instance = StickerState._();
+  // factory StickerState() => _instance;
 
   //Переменные
   List<StickerCategory> categories = AppData.categories;
@@ -30,6 +30,7 @@ class StickerState {
     } else {
       stickersByCategory = stickers.where((e) => e.type == category.type).toList();
     }
+    notifyListeners();
   }
 
   Future<void> onIncreaseQuantityTap(Sticker sticker) async {

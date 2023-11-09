@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'states/_states.dart';
 import 'ui/_ui.dart';
 import 'ui_kit/_ui_kit.dart';
 
@@ -13,10 +15,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return ChangeNotifierProvider<StickerState>(
+        create: (_) => StickerState(),
+        child: MaterialApp(
       title: 'Sunny Stickers',
       theme: AppTheme.darkTheme,
       home: const HomeScreen(),
+    ),
     );
   }
 }

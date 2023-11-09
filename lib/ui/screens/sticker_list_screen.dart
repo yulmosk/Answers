@@ -1,14 +1,16 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:sun_stickers/ui/_ui.dart';
 
 import '../../data/_data.dart';
+import '../../states/_states.dart';
 import '../../ui_kit/_ui_kit.dart';
 
 class StickerList extends StatelessWidget {
   StickerList({super.key});
-  var categories = AppData.categories;
+  //var categories = AppData.categories;
 
 
   @override
@@ -34,7 +36,13 @@ class StickerList extends StatelessWidget {
                   style: Theme.of(context).textTheme.displaySmall,
                 ),
                 _categories(context),
-                StickerListView(stickers: AppData.stickers),
+                Builder(
+                  builder: (context) {
+                    final stickersByCategory = context.select((StickerState state) => state.stickersByCategory);
+                    debugPrint('StickerList >> Стикеры по категории');
+                    return StickerListView(stickers: stickersByCategory);
+                  }
+                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 25, bottom: 5),
                   child: Row(
@@ -54,9 +62,16 @@ class StickerList extends StatelessWidget {
                     ],
                   ),
                 ),
-                StickerListView(
-                  stickers: AppData.stickers,
-                  isReversed: true,
+                Builder(
+                  builder: (context) {
+                    context.select((StickerState state) => state.stickers.length);
+                    final stickers = context.read<StickerState>().stickers;
+                    debugPrint('StickerList >> Лучшее за неделю');
+                    return StickerListView(
+                      stickers: stickers,
+                      isReversed: true,
+                    );
+                  }
                 ),
               ],
             ),
@@ -114,32 +129,45 @@ class StickerList extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8.0),
       child: SizedBox(
         height: 40,
-        child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (_, index) {
-              final category = categories[index];
-              return GestureDetector(
-                onTap: () {},
-                child: Container(
-                  width: 100,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: category.isSelected ? AppColor.accent : Colors.transparent,
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(15),
+        child: Builder(
+          builder: (context) {
+            final categoriesLenght = context.select((StickerState state) => state.categories.length);
+            final categories = context.read<StickerState>().categories;
+            debugPrint('StickerList >> Подсветка категорию');
+            return ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (_, index) {
+                  final category = categories[index];
+                  return Builder(
+                    builder: (context) {
+                      final isSelected = context.select((StickerState state) => state.categories[index].isSelected);
+                      debugPrint('StickerList >> Перерисовка категорию ${categories[index].type}');
+                      return GestureDetector(
+                        onTap: () => context.read<StickerState>().onCategoryTap(category),
+                        child: Container(
+                          width: 100,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: isSelected ? AppColor.accent : Colors.transparent,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(15),
+                            ),
+                          ),
+                          child: Text(
+                            category.type.name.firstCapital,
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                        ),
+                      );
+                    }
+                  );
+                },
+                separatorBuilder: (_, __) => Container(
+                      width: 15,
                     ),
-                  ),
-                  child: Text(
-                    category.type.name.firstCapital,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                ),
-              );
-            },
-            separatorBuilder: (_, __) => Container(
-                  width: 15,
-                ),
-            itemCount: categories.length),
+                itemCount: categoriesLenght);
+          }
+        ),
       ),
     );
   }
