@@ -7,10 +7,10 @@ class  CategoryTapEvent extends SharedEvent{
   final StickerCategory category;
 }
 
-class  SetSelectedStickerEvent extends SharedEvent{
-  SetSelectedStickerEvent(this.stickerId);
-  final int stickerId;
-}
+// class  SetSelectedStickerEvent extends SharedEvent{
+//   SetSelectedStickerEvent(this.stickerId);
+//   final int stickerId;
+// }
 
 class  IncreaseQuantityTapEvent extends SharedEvent{
   IncreaseQuantityTapEvent(this.stickerId);
